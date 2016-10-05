@@ -94,12 +94,14 @@ if __name__ == '__main__':
         snap_cn_buy, time_updated = get_snapshot()
         time_now = datetime.datetime.strptime(time.ctime(), "%a %b %d %H:%M:%S %Y")
         auc_df = get_auc()
-        if not snap_updated or time_updated!=None and snap_updated!=time_updated:
+        #Comparisons to singletons like None should always be done with is or is not, never the equality operators.
+        #用 is 或者 is not 来判断对象是否为空
+        if not snap_updated or time_updated is not None and snap_updated!=time_updated:
             print u"当前时间: %s" %time_now
             print '\033[32m', u"时光徽章: %s\t" %snap_cn_buy, u"更新时间: %s " %time_updated, '\033[0m'
 
         #循环中存在auc_df为 NoneType 错误，可能为resp.read()读取失败，也可能是urlopen失败
-        elif auc_lenth==0 or auc_lenth!=None and auc_lenth!=len(auc_df):
+        elif auc_lenth==0 or auc_df is not None and auc_lenth!=len(auc_df):
             print u"当前时间: %s" %time_now
             print u"时光徽章: %s\t" %snap_cn_buy, u"更新时间: %s " %time_updated
         else:

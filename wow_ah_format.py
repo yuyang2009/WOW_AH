@@ -13,7 +13,7 @@ snap_url = "https://wowtoken.info/snapshot.json"
 report_list = [u"物品名称", u"最低价格", u"数量", u"我的价格"]
 item = namedtuple('item', ['id', 'name', 'low', 'high'])
 row_format = u"{:<15}" * (len(report_list))
-cutoff_line = u"* "*30
+cutoff_line = u"* "*32
 bn_id = u"道亦有盗"
 
 app_path = os.path.abspath(sys.path[0])

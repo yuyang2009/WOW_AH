@@ -45,14 +45,14 @@ def get_auc():
             auc_df = pd.DataFrame(auc_json)
             return auc_df
         else:
-            print u"当前时间：%s" %time.ctime()
-            print '\033[31m', u"拍卖行API不可用", '\033[0m'
-            print cutoff_line, "\n"
+            print '\033[31m', u"%s: 拍卖行API不可用" %time.ctime(), '\033[0m'
             return None
+
     except:
-        print u"当前时间：%s" %time.ctime()
-        print '\033[31m', u"拍卖行API异常", '\033[0m'
-        print cutoff_line, "\n"
+        # print u"当前时间：%s" %time.ctime()
+        # print '\033[31m', u"拍卖行API异常", '\033[0m'
+        # print cutoff_line, "\n"
+        print '\033[31m', u"%s: 拍卖行API异常" %time.ctime(), '\033[0m'
         return None
 
 def get_snapshot():
@@ -64,14 +64,11 @@ def get_snapshot():
             snap_cn_json = resp_json.get('CN').get('formatted')
             return snap_cn_json['buy'], snap_cn_json['updated']
         else:
-            print u"当前时间：%s" %time.ctime()
-            print '\033[31m', u"时光徽章API不可用", '\033[0m'
-            print cutoff_line, "\n"
+            print '\033[31m', u"%s: 时光徽章API不可用" %time.ctime(), '\033[0m'
             return None, None
     except:
-        print u"当前时间：%s" %time.ctime()
-        print '\033[31m', u"时光徽章API异常", '\033[0m'
-        print cutoff_line, "\n"
+        print '\033[31m', u"%s: 时光徽章API异常" %time.ctime(), '\033[0m'
+
         return None, None
 
 
@@ -129,6 +126,7 @@ if __name__ == '__main__':
         snap_cn_buy, time_updated = get_snapshot()
         auc_df = get_auc()
 
+
         # now = time.ctime()
         # if auc_df is not None:
         #     print u'%s: 拍卖行物品数量为 %d \n' %(now, len(auc_df))
@@ -137,7 +135,7 @@ if __name__ == '__main__':
 
         #Comparisons to singletons like None should always be done with is or is not, never the equality operators.
         #用 is 或者 is not 来判断对象是否为空
-        if not snap_updated and auc_lenth==0:
+        if auc_df is not None and not snap_updated and auc_lenth==0:
             report(items, auc_df)
             auc_lenth = len(auc_df)
             snap_updated = time_updated
@@ -151,6 +149,7 @@ if __name__ == '__main__':
             print cutoff_line, "\n"
             snap_updated = time_updated
         else:
+            time.sleep(5)
             continue
 
         #auc_lenth = len(auc_df)

@@ -46,12 +46,12 @@ def get_auc():
             return auc_df
         else:
             print u"当前时间：%s" %time.ctime()
-            print '\031[36m', u"拍卖行API不可用", '\033[0m'
+            print '\033[31m', u"拍卖行API不可用", '\033[0m'
             print cutoff_line, "\n"
             return None
     except:
         print u"当前时间：%s" %time.ctime()
-        print '\031[36m', u"拍卖行API异常", '\033[0m'
+        print '\033[31m', u"拍卖行API异常", '\033[0m'
         print cutoff_line, "\n"
         return None
 
@@ -65,12 +65,12 @@ def get_snapshot():
             return snap_cn_json['buy'], snap_cn_json['updated']
         else:
             print u"当前时间：%s" %time.ctime()
-            print '\031[36m', u"时光徽章API不可用", '\033[0m'
+            print '\033[31m', u"时光徽章API不可用", '\033[0m'
             print cutoff_line, "\n"
             return None, None
     except:
         print u"当前时间：%s" %time.ctime()
-        print '\031[36m', u"时光徽章API异常", '\033[0m'
+        print '\033[31m', u"时光徽章API异常", '\033[0m'
         print cutoff_line, "\n"
         return None, None
 

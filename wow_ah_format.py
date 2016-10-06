@@ -11,6 +11,7 @@ from collections import namedtuple
 
 auc_url = "http://auction-api-cn.worldofwarcraft.com/auction-data/d9f2775ea6440077e5de6749fc37d81e/auctions.json"
 snap_url = "https://wowtoken.info/snapshot.json"
+
 report_list = [u"物品名称", u"最低价格", u"数量", u"我的价格"]
 item = namedtuple('item', ['id', 'name', 'low', 'high'])
 row_format = u"{:<{}}" * (len(report_list))
@@ -93,7 +94,7 @@ def report(items, auc_df):
             alter_high = item.high
             data_list = [name, str(low).decode('utf8'), str(quantity).decode('utf8'), str(my_price).decode('utf8')]
             if alter_low.strip() and low<int(alter_low) or alter_high.strip() and low>int(alter_high):
-                print '\033[32m' %bg_color[color_flag], row_format.format(*insert_width(data_list, width)), '\033[0m'
+                print '\033[32m', row_format.format(*insert_width(data_list, width)), '\033[0m'
                 alter_flag = True
             else:
                 print '\033[%sm' %ft_color[color_flag], row_format.format(*insert_width(data_list, width)), '\033[0m'

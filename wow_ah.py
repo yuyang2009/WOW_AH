@@ -45,10 +45,14 @@ def get_auc():
             auc_df = pd.DataFrame(auc_json)
             return auc_df
         else:
-            print u"拍卖行API不可用\n"
+            print u"当前时间：%s" %time.ctime()
+            print '\031[36m', u"拍卖行API不可用", '\033[0m'
+            print cutoff_line, "\n"
             return None
     except:
-        print u"拍卖行API异常\n"
+        print u"当前时间：%s" %time.ctime()
+        print '\031[36m', u"拍卖行API异常", '\033[0m'
+        print cutoff_line, "\n"
         return None
 
 def get_snapshot():
@@ -60,10 +64,14 @@ def get_snapshot():
             snap_cn_json = resp_json.get('CN').get('formatted')
             return snap_cn_json['buy'], snap_cn_json['updated']
         else:
-            print u"时光徽章API不可用\n"
+            print u"当前时间：%s" %time.ctime()
+            print '\031[36m', u"时光徽章API不可用", '\033[0m'
+            print cutoff_line, "\n"
             return None, None
     except:
-        print u"时光徽章API异常\n"
+        print u"当前时间：%s" %time.ctime()
+        print '\031[36m', u"时光徽章API异常", '\033[0m'
+        print cutoff_line, "\n"
         return None, None
 
 

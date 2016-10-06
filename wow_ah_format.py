@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
 import urllib
-import os
+from os import path
 import sys
 import json
 import time
@@ -20,9 +20,10 @@ ft_color = ['37', '36']
 width = 15
 
 bn_id = u"道亦有盗"
-app_path = os.path.abspath(sys.path[0])
+app_path = path.abspath(sys.path[0])
+#app_path = path.abspath(path)
 file_name = "item_list.txt"
-file_path = os.path.join(app_path, file_name)
+file_path = path.join(app_path, file_name)
 
 def calc_width(target, text):
     return target - sum(unicodedata.east_asian_width(c) in 'WF' for c in text)
@@ -44,11 +45,11 @@ def get_auc():
             auc_df = pd.DataFrame(auc_json)
             return auc_df
         else:
-            print u"拍卖行API不可用"
-
+            print u"拍卖行API不可用\n"
+            return None
     except:
+        print u"拍卖行API异常\n"
         return None
-        print "拍卖行API异常"
 
 def get_snapshot():
     try:
@@ -59,10 +60,12 @@ def get_snapshot():
             snap_cn_json = resp_json.get('CN').get('formatted')
             return snap_cn_json['buy'], snap_cn_json['updated']
         else:
-            print u"时光徽章API不可用"
+            print u"时光徽章API不可用\n"
+            return None, None
     except:
+        print u"时光徽章API异常\n"
         return None, None
-        print u"时光徽章API异常"
+
 
 def get_items():
     items = []
@@ -94,7 +97,7 @@ def report(items, auc_df):
             alter_high = item.high
             data_list = [name, str(low).decode('utf8'), str(quantity).decode('utf8'), str(my_price).decode('utf8')]
             if alter_low.strip() and low<int(alter_low) or alter_high.strip() and low>int(alter_high):
-                print '\033[32m', row_format.format(*insert_width(data_list, width)), '\033[0m'
+                print '\033[31m', row_format.format(*insert_width(data_list, width)), '\033[0m'
                 alter_flag = True
             else:
                 print '\033[%sm' %ft_color[color_flag], row_format.format(*insert_width(data_list, width)), '\033[0m'
@@ -104,34 +107,47 @@ def report(items, auc_df):
         winsound.Beep(300,2000)
 
 if __name__ == '__main__':
-    #import sys
-    #reload(sys)
-    #sys.setdefaultencoding('utf-8')
     items = get_items()
     if len(items) == 0:
-        print u"监视列表为空！"
+        print u"监视列表为空！\n"
     pd.options.mode.chained_assignment = None
 
     snap_updated = ''
     auc_lenth = 0
     print '\033[32m', u"查询中……\n", '\033[0m'
     while True:
+        #start = time.clock()
+
         snap_cn_buy, time_updated = get_snapshot()
         auc_df = get_auc()
+
+        # now = time.ctime()
+        # if auc_df is not None:
+        #     print u'%s: 拍卖行物品数量为 %d \n' %(now, len(auc_df))
+        # else:
+        #     print u'拍卖行API异常\n'
+
         #Comparisons to singletons like None should always be done with is or is not, never the equality operators.
         #用 is 或者 is not 来判断对象是否为空
-        #循环中存在auc_df为 NoneType 错误，可能为resp.read()读取失败，也可能是urlopen失败
         if not snap_updated and auc_lenth==0:
             report(items, auc_df)
+            auc_lenth = len(auc_df)
+            snap_updated = time_updated
+        #循环中存在auc_df为 NoneType 错误，可能为resp.read()读取失败，也可能是urlopen失败
         elif auc_df is not None and auc_lenth!=len(auc_df):
             report(items, auc_df)
+            auc_lenth = len(auc_df)
         elif time_updated is not None and snap_updated!=time_updated:
             print u"当前时间：%s" %time.ctime()
             print '\033[32m', u"时光徽章: %s\t" %snap_cn_buy, u"更新时间: %s " %time_updated, '\033[0m'
             print cutoff_line, "\n"
+            snap_updated = time_updated
         else:
             continue
 
-        auc_lenth = len(auc_df)
-        snap_updated = time_updated
+        #auc_lenth = len(auc_df)
+        #snap_updated = time_updated
+
+        # end = time.clock()
+        # print u'%s: 运行时间了 %d 秒\n' %(now, (end-start))
         time.sleep(5)

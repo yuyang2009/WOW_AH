@@ -9,7 +9,7 @@ import unicodedata
 import pandas as pd
 from collections import namedtuple
 
-auc_url = "http://auction-api-cn.worldofwarcraft.com/auction-data/d9f2775ea6440077e5de6749fc37d81e/auctions.json"
+#auc_url = "http://auction-api-cn.worldofwarcraft.com/auction-data/d9f2775ea6440077e5de6749fc37d81e/auctions.json"
 snap_url = "https://wowtoken.info/snapshot.json"
 
 report_list = [u"物品名称", u"最低价格", u"数量", u"我的价格"]
@@ -19,11 +19,57 @@ cutoff_line = u"* "*30
 ft_color = ['37', '36']
 width = 15
 
-bn_id = u"道亦有盗"
+#RealmName = u"影牙要塞"
+#bn_id = u"盗亦有道"
+
 app_path = path.abspath(sys.path[0])
 #app_path = path.abspath(path)
 file_name = "item_list.txt"
 file_path = path.join(app_path, file_name)
+realmurls_name = "RealmUrl.txt"
+realmurls_path = path.join(app_path, realmurls_name)
+player_info_name = "Player_info.txt"
+player_info_path = path.join(app_path, player_info_name)
+
+def get_Player_info():
+    with open(player_info_path) as player_info_file:
+        player_info_line = player_info_file.read()
+        if player_info_line:
+            player_info = player_info_line.decode('utf8').split(',')
+            if len(player_info)==2:
+                return player_info[0].strip(), player_info[1].strip()
+            else:
+                print '\033[31m', u"%s: 玩家信息描述文件格式错误，请确认分隔符为英文逗号。\n" %time.ctime(), '\033[0m'
+                exit()
+        else:
+            print '\033[31m', u"%s: 玩家信息描述文件不可用！\n" %time.ctime(), '\033[0m'
+            exit()
+
+def get_RealmAPI(RealmName):
+    with open(realmurls_path) as realm_file:
+        for line in realm_file:
+            API_dic = line.decode("utf8").split()
+            if API_dic[0] == RealmName:
+                return API_dic[1]
+            else:
+                pass
+        print '\033[31m', u"%s: 找不到对应服务器，请确认服务器名称（以合并后主服务器名称为准）。\n" %time.ctime(), '\033[0m'
+        exit()
+
+def get_items():
+    items = []
+    with open(file_path, 'r') as f_items:
+        for line in f_items:
+            if not line.isspace():
+                splitted_line = line.strip('\n').split(',')
+                temp = item._make(splitted_line)
+                items.append(temp)
+    f_items.close()
+    if items is not None and len(items) != 0:
+        return items
+    else:
+        print '\033[31m', u"%s: 监视列表为空！\n" %time.ctime(), '\033[0m'
+        exit()
 
 def calc_width(target, text):
     return target - sum(unicodedata.east_asian_width(c) in 'WF' for c in text)
@@ -38,53 +84,33 @@ def insert_width(list, width):
 def get_auc():
     try:
         resp = urllib.urlopen(auc_url)
-        if resp.code == 200:
-            #resp_json = json.load(resp)
-            resp_json = json.loads(resp.read())
-            auc_json = resp_json.get('auctions')
-            auc_df = pd.DataFrame(auc_json)
-            return auc_df
-        else:
-            print '\033[31m', u"%s: 拍卖行API不可用" %time.ctime(), '\033[0m'
-            return None
+        #resp_json = json.load(resp)
+        resp_json = json.loads(resp.read())
+        auc_json = resp_json.get('auctions')
+        auc_df = pd.DataFrame(auc_json)
+        return auc_df
 
     except:
         # print u"当前时间：%s" %time.ctime()
         # print '\033[31m', u"拍卖行API异常", '\033[0m'
         # print cutoff_line, "\n"
-        print '\033[31m', u"%s: 拍卖行API异常" %time.ctime(), '\033[0m'
+        print '\033[31m', u"%s: 拍卖行API异常\n" %time.ctime(), '\033[0m'
         return None
 
 def get_snapshot():
     try:
         resp = urllib.urlopen(snap_url)
-        if resp.code == 200:
-            #resp_json = json.load(resp)
-            resp_json = json.loads(resp.read())
-            snap_cn_json = resp_json.get('CN').get('formatted')
-            return snap_cn_json['buy'], snap_cn_json['updated']
-        else:
-            print '\033[31m', u"%s: 时光徽章API不可用" %time.ctime(), '\033[0m'
-            return None, None
+        #resp_json = json.load(resp)
+        resp_json = json.loads(resp.read())
+        snap_cn_json = resp_json.get('CN').get('formatted')
+        return snap_cn_json['buy'], snap_cn_json['updated']
     except:
-        print '\033[31m', u"%s: 时光徽章API异常" %time.ctime(), '\033[0m'
-
+        print '\033[31m', u"%s: 时光徽章API异常\n" %time.ctime(), '\033[0m'
         return None, None
-
-
-def get_items():
-    items = []
-    with open(file_path, 'r') as f_items:
-        for line in f_items:
-            if not line.isspace():
-                splitted_line = line.strip('\n').split(',')
-                temp = item._make(splitted_line)
-                items.append(temp)
-    f_items.close()
-    return items
 
 def report(items, auc_df):
     print u"当前时间：%s" %time.ctime()
+    print u"服务器名称：%s\t玩家ID：%s" %(RealmName, bn_id)
     print u"时光徽章: %s\t" %snap_cn_buy, u"更新时间: %s " %time_updated
     print cutoff_line
     print '\033[37m', row_format.format(*insert_width(report_list, width)), '\033[0m'
@@ -93,6 +119,8 @@ def report(items, auc_df):
     for item in items:
         if item.id:
             df = auc_df.loc[auc_df['item'] == int(item.id)]
+            #删除无一口价的物品
+            df = df.loc[df['buyout'] != 0]
             name = item.name.decode("utf8")
             df.loc[:, 'unit_price'] = df.loc[:, 'buyout'] / df.loc[:, 'quantity'] / 10000
             low = df['unit_price'].min()
@@ -112,9 +140,11 @@ def report(items, auc_df):
         winsound.Beep(300,2000)
 
 if __name__ == '__main__':
+    #global RealmName, bn_id
+    RealmName, bn_id = get_Player_info()
+    auc_url = get_RealmAPI(RealmName)
+
     items = get_items()
-    if len(items) == 0:
-        print u"监视列表为空！\n"
     pd.options.mode.chained_assignment = None
 
     snap_updated = ''

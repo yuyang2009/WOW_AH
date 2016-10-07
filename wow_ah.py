@@ -61,7 +61,7 @@ def get_items():
     with open(file_path, 'r') as f_items:
         for line in f_items:
             if not line.isspace():
-                splitted_line = line.strip('\n').split(',')
+                splitted_line = line.decode("utf8").strip('\n').split(',')
                 temp = item._make(splitted_line)
                 items.append(temp)
     f_items.close()
@@ -121,7 +121,9 @@ def report(items, auc_df):
             df = auc_df.loc[auc_df['item'] == int(item.id)]
             #删除无一口价的物品
             df = df.loc[df['buyout'] != 0]
-            name = item.name.decode("utf8")
+            name = item.name
+            if name is not None and len(name)>7:
+                name = name[:6] + u"..."
             df.loc[:, 'unit_price'] = df.loc[:, 'buyout'] / df.loc[:, 'quantity'] / 10000
             low = df['unit_price'].min()
             quantity = df.loc[df['unit_price'] == low]['quantity'].sum()
@@ -143,7 +145,6 @@ if __name__ == '__main__':
     #global RealmName, bn_id
     RealmName, bn_id = get_Player_info()
     auc_url = get_RealmAPI(RealmName)
-
     items = get_items()
     pd.options.mode.chained_assignment = None
 
@@ -155,7 +156,6 @@ if __name__ == '__main__':
 
         snap_cn_buy, time_updated = get_snapshot()
         auc_df = get_auc()
-
 
         # now = time.ctime()
         # if auc_df is not None:

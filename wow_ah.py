@@ -11,7 +11,6 @@ from collections import namedtuple
 
 #auc_url = "http://auction-api-cn.worldofwarcraft.com/auction-data/d9f2775ea6440077e5de6749fc37d81e/auctions.json"
 snap_url = "https://wowtoken.info/snapshot.json"
-
 report_list = [u"物品名称", u"最低价格", u"数量", u"我的价格"]
 item = namedtuple('item', ['id', 'name', 'low', 'high'])
 row_format = u"{:<{}}" * (len(report_list))
@@ -157,7 +156,7 @@ if __name__ == '__main__':
         snap_cn_buy, time_updated = get_snapshot()
         auc_df = get_auc()
 
-        # now = time.ctime()
+        now = time.ctime()
         # if auc_df is not None:
         #     print u'%s: 拍卖行物品数量为 %d \n' %(now, len(auc_df))
         # else:

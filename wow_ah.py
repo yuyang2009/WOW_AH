@@ -20,6 +20,7 @@ cutoff_line = u"* "*30
 ft_color = ['37', '36']
 width = 15
 timeout = 10
+chunk_size = 1024
 #RealmName = u"影牙要塞"
 #bn_id = u"盗亦有道"
 
@@ -94,7 +95,6 @@ def get_auc():
         logging.info(resp.code)
         try:
             resp_json = json.loads(resp.read())
-            #resp_json = json.load(resp)
             auc_json = resp_json.get('auctions')
             auc_df = pd.DataFrame(auc_json)
             logging.info("get_auc end")

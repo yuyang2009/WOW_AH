@@ -32,6 +32,8 @@ realmurls_name = "RealmUrl.txt"
 realmurls_path = path.join(app_path, realmurls_name)
 player_info_name = "Player_info.txt"
 player_info_path = path.join(app_path, player_info_name)
+log_file_name = "wow_ah.log"
+log_file_path = path.join(app_path, log_file_name)
 
 def get_Player_info():
     logging.info("get_Player_info start")
@@ -97,7 +99,7 @@ def get_auc():
             resp_json = json.loads(resp.read())
             auc_json = resp_json.get('auctions')
             auc_df = pd.DataFrame(auc_json)
-            logging.info("get_auc end")
+            logging.info("get_auc end, auctions length=" + str(len(auc_df)))
             return auc_df
         except:
             #print '\033[31m', u"%s: 拍卖行数据读取失败\n" %time.ctime(), '\033[0m'
@@ -130,7 +132,7 @@ def get_snapshot():
         try:
             resp_json = json.loads(resp.read())
             snap_cn_json = resp_json.get('CN').get('formatted')
-            logging.info("get_snapshot end")
+            logging.info("get_snapshot end,snap_updated=" + str(snap_cn_json['updated']))
             return snap_cn_json['buy'], snap_cn_json['updated']
         except:
             #print '\033[31m', u"%s: 时光徽章读取失败\n" %time.ctime(), '\033[0m'
@@ -193,7 +195,7 @@ def report(items, auc_df):
 
 if __name__ == '__main__':
     #global RealmName, bn_id
-    logging.basicConfig(filename='wow_ah.log', filemode='w', filemaxBytes=5 * 1024, level=logging.DEBUG, format='%(asctime)s - (%(lineno)d) - %(funcName)s - %(message)s')
+    logging.basicConfig(filename=log_file_path, filemode='w', filemaxBytes=5 * 1024, level=logging.DEBUG, format='%(asctime)s - (%(lineno)d) - %(funcName)s - %(message)s')
 
     RealmName, bn_id = get_Player_info()
     auc_url = get_RealmAPI(RealmName)
@@ -204,7 +206,7 @@ if __name__ == '__main__':
     auc_lenth = 0
     print '\033[32m', u"查询中……\n", '\033[0m'
     while True:
-        logging.info("查询开始")
+        logging.info("查询开始, snap_updated=" + str(snap_updated) + ", auctions length=" + str(auc_lenth))
         snap_cn_buy, time_updated = get_snapshot()
         auc_df = get_auc()
 

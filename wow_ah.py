@@ -243,6 +243,7 @@ if __name__ == '__main__':
             print '\033[32m', u"时光徽章: %s\t" %snap_cn_buy, u"更新时间: %s " %time_updated, '\033[0m'
             print cutoff_line, "\n"
             snap_updated = time_updated
+            app_log.info("snapshot price updated")
         else:
             pass
 

@@ -204,7 +204,7 @@ if __name__ == '__main__':
     #global RealmName, bn_id
     log_formatter = logging.Formatter('%(asctime)s - (%(lineno)d) - %(funcName)s - %(message)s')
     log_file = log_file_path
-    log_handler = RotatingFileHandler(log_file, mode='a', maxBytes=5*1024*1024, 
+    log_handler = RotatingFileHandler(log_file, mode='a', maxBytes=5*1024*1024,
                                  backupCount=2, encoding=None, delay=0)
     log_handler.setFormatter(log_formatter)
     log_handler.setLevel(logging.INFO)
@@ -225,17 +225,20 @@ if __name__ == '__main__':
     print '\033[32m', u"查询中……\n", '\033[0m'
     while True:
         app_log.info("查询开始……")
+        #app_log.info("old snapshot updated={0},old auctions length={1}".format(time_updated, auc_lenth))
         snap_cn_buy, time_updated = get_snapshot()
         auc_df = get_auc()
 
         #Comparisons to singletons like None should always be done with is or is not, never the equality operators.
         #用 is 或者 is not 来判断对象是否为空
-        if auc_df is not None and not snap_updated and auc_lenth==0:
+        if not snap_updated and auc_lenth==0 and auc_df is not None:
             report(items, auc_df)
             auc_lenth = len(auc_df)
             snap_updated = time_updated
+            continue
+        #app_log.info("new snapshot updated={0},new auctions length={1}".format(time_updated, len(auc_df)))
         #循环中存在auc_df为 NoneType 错误，可能为resp.read()读取失败，也可能是urlopen失败
-        elif auc_df is not None and auc_lenth!=len(auc_df):
+        if auc_df is not None and auc_lenth!=len(auc_df):
             report(items, auc_df)
             auc_lenth = len(auc_df)
         elif time_updated is not None and snap_updated!=time_updated:
